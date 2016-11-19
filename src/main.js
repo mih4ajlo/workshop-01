@@ -40,16 +40,16 @@ $(function () {
             if (error) throw error;
 
             // scale the range of the data
-            x.domain(d3.extent(data, function(d) { return d.case_age_at_diagnosis | 0; }));
-            y.domain([0, d3.max(data, function(d) { return d.case_days_to_death | 0; })]);
+            x.domain(d3.extent(data, function(d) { return d.case_days_to_death | 0; }));
+            y.domain([0, d3.max(data, function(d) { return d.case_age_at_diagnosis | 0; })]);
 
             // Add the scatterplot
             svg.selectAll("dot")
                 .data(data)
                 .enter().append("circle")
                 .attr("r", 5)
-                .attr("cx", function(d) { return x(d.case_age_at_diagnosis | 0); })
-                .attr("cy", function(d) { return y(d.case_days_to_death | 0); });
+                .attr("cx", function(d) { return x(d.case_days_to_death | 0); })
+                .attr("cy", function(d) { return y(d.case_age_at_diagnosis | 0); });
 
             // Add the X Axis
             svg.append("g")
