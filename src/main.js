@@ -31,7 +31,7 @@ $(function () {
 		.append("g")
 		.attr("transform",
 			"translate(" + margin.left + "," + margin.top + ")");
-
+	
 
 	// GO GO GO :)
 
@@ -52,18 +52,25 @@ $(function () {
 	outerWidth = DEFAULTS.graph_width;
 	outerHeight = DEFAULTS.graph_height;
 
-	var x = d3.scaleLinear()
-		.range([0, width]).nice();
+	
 
-	var y = d3.scaleLinear()
-		.range([height, 0]).nice();
+	var x = d3.scaleLinear().range([0, width]).nice();
+	var y = d3.scaleLinear().range([height, 0]).nice();
+
+	var k = height / width;
+	var x0 = [-4.5, 4.5];
+	var y0 = [-4.5 * k, 4.5 * k];
+
+
 
 	var xCat = "case_days_to_death",
-		yCat = "case_age_at_diagnosis";
-	//rCat = "Protein (g)",
-	//colorCat = "Manufacturer";
+		yCat = "case_age_at_diagnosis",
+		//rCat = "Protein (g)",
+		colorCat = "case_pathologic_stage";
+
 
 	d3.tsv("../tcga-cases.tsv", function (data) {
+
 		/*
 		  data.forEach(function(d) {
 			d.Calories = +d.Calories;
@@ -78,8 +85,12 @@ $(function () {
 			d.Sodium = +d.Sodium;
 			d.Sugars = +d.Sugars;
 			d["Vitamins and Minerals"] = +d["Vitamins and Minerals"];
+			  
+			 d.case_pathologic_stage
+			  
 		  });
-		*/
+		  */
+
 
 		/*
 		  var xMax = d3.max(data, function(d) { return d[xCat]; }) * 1.05,
@@ -128,6 +139,18 @@ $(function () {
 				return xCat + ": " + d[xCat] + "<br>" + yCat + ": " + d[yCat];
 			});
 
+		var symbol = d3.symbol();
+
+		var DOT_SHAPE = symbol.type(function (d) {
+
+			if (d.case_gender === 'MALE') {
+				return d3.symbolTriangle;
+			}
+
+			return d3.symbolCircle;
+
+		});
+
 
 		/*
 	  var zoomBeh = d3.behavior.zoom()
@@ -151,7 +174,8 @@ $(function () {
 
 		svg.append("rect")
 			.attr("width", width)
-			.attr("height", height);
+			.attr("height", height)
+			.attr("fill", "#fff");
 
 		svg.append("g")
 			.classed("x axis", true)
@@ -198,19 +222,41 @@ $(function () {
 
 		objects.selectAll(".dot")
 			.data(data)
-			.enter().append("circle")
+			.enter().append("path")
 			.classed("dot", true)
-			.attr("r", function (d) {
-				//return 6 * Math.sqrt(d[rCat] / Math.PI);
-				return 4;
-			})
+			/*
+				.attr("r", function (d) {
+					//return 6 * Math.sqrt(d[rCat] / Math.PI);
+					return 4;
+				})
+				*/
 			.attr("transform", transform)
-			.style("fill", function (d) {
-				//return color(d[colorCat]);
-				return "#fff";
+			.attr('d', DOT_SHAPE)
+			.style("stroke", function (d) {
+				return color(d[colorCat]);
 			})
+			.style("fill", "none")
 			.on("mouseover", tip.show)
 			.on("mouseout", tip.hide);
+
+		
+		/*
+		var brush = d3.brush().on("end", brushended),
+			idleTimeout,
+			idleDelay = 350;
+
+		svg.append("g")
+			.attr("class", "brush")
+			.call(brush);
+			*/
+
+		
+		
+		
+		
+		
+		
+		
 
 		var legend = svg.selectAll(".legend")
 			.data(color.domain())
@@ -231,6 +277,13 @@ $(function () {
 			.text(function (d) {
 				return d;
 			});
+
+
+
+		
+		
+		
+
 
 
 		/*
@@ -260,7 +313,37 @@ $(function () {
 	  */
 
 		function transform(d) {
-			return "translate(" + x(d[xCat]) + "," + y(d[yCat]) + ")";
+			return "translate(" + x(d.case_days_to_death) + "," + y(d.case_age_at_diagnosis) + ")";
+		}
+
+
+
+		function brushended() {
+			var s = d3.event.selection;
+			if (!s) {
+				if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
+				x.domain(x0);
+				y.domain(y0);
+			} else {
+				x.domain([s[0][0], s[1][0]].map(x.invert, x));
+				y.domain([s[1][1], s[0][1]].map(y.invert, y));
+				svg.select(".brush").call(brush.move, null);
+			}
+			zoom();
+		}
+
+		function idled() {
+			idleTimeout = null;
+		}
+
+		function zoom() {
+			var t = svg.transition().duration(750);
+			svg.select("x.axis").transition(t).call(xAxis);
+			svg.select("y.axis").transition(t).call(yAxis);
+			svg.selectAll("path")
+				.data(data)
+				.transition(t)
+				.attr("transform", transform);
 		}
 
 
