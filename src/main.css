@@ -22,7 +22,7 @@ h3 {
     flex-direction: row;
     align-items: flex-start;
 
-    background: #27292f;
+    /*background: #27292f;*/
 
     overflow-y: scroll;
 
@@ -35,7 +35,7 @@ h3 {
 }
 
 .scatter-plot {
-    display: flex;
+    display: block;
 
     width: 800px;
     height: 700px;
@@ -80,4 +80,14 @@ h3 {
     margin: -1px 0 0 0;
     top: 100%;
     left: 0;
+}
+
+
+rect{
+    fill: white;
+}
+
+.area {
+  fill: steelblue;
+  clip-path: url(#clip);
 }
