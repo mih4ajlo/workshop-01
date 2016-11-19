@@ -98,15 +98,13 @@ $(function () {
 		  .tickSize(-width);
 		  */
 		
-	var xAxis = d3.select(".axis")
-    		.call(d3.axisBottom(x));
+	var xAxis = d3.axisBottom(x);
 		
-	var yAxis = d3.select(".axis")
-    		.call(d3.axisLeft(y));
+	var yAxis = d3.axisLeft(y);
 
 	  
 
-	  //var color = d3.scale.category10();
+	  var color =  d3.scaleOrdinal(d3.schemeCategory10);
 
 	  var tip = d3.tip()
 		  .attr("class", "d3-tip")
@@ -123,20 +121,18 @@ $(function () {
 		  .scaleExtent([0, 500])
 		  .on("zoom", zoom);
 		  
-*/
 		
 	  var svg = d3.select("#scatter")
 		.append("svg")
 		  .attr("width", outerWidth)
 		  .attr("height", outerHeight);
-		/*
 		.append("g")
 		  .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 		  .call(zoomBeh);
 		  */
 		  
 
-	  //svg.call(tip);
+	  svg.call(tip);
 
 	  svg.append("rect")
 		  .attr("width", width)
@@ -242,12 +238,13 @@ $(function () {
 		svg.selectAll(".dot")
 			.attr("transform", transform);
 	  }
+	  */
 
 	  function transform(d) {
 		return "translate(" + x(d[xCat]) + "," + y(d[yCat]) + ")";
 	  }
 	  
-	  */
+
 	});
 
 
